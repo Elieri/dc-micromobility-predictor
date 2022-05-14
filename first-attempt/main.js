@@ -1,15 +1,54 @@
-/* create map */
+/* ----- create map ----- */
 
-const map = L.map('map', preferCanvas=true).setView([38.89, -77.08], 14);
+let startLocation = [38.904167, -77.016111];
+
+/*console.log(`startLocation type: ${typeof startLocation}`);
+console.log(`startLocation value: ${startLocation}`);*/
+
+const map = L.map('map', preferCanvas=true).setView(startLocation, 12);
 
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
 	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
 	maxZoom: 16
 }).addTo(map);
 
-/* try to get vehicles as geoJSON; not currently working */
+/* ----- geolocate user ----- */
+/* use "sensors" menu in Chrome dev panel to spoof location 38.9343, -77.0452 */
 
-async function fetchSpinGeoJSON() {
+// setting userLocation this way does NOT work due to async issues;
+// flying to map location does work, though
+let userLocation;
+function geolocate() {
+	if (!('geolocation' in navigator)) return;
+	navigator.geolocation.getCurrentPosition(position => {
+		userLocation = [position.coords.latitude, position.coords.longitude];
+		console.log(`userLocation value inside callback function: ${userLocation}`);
+		map.flyTo(userLocation, 16);
+		return userLocation;
+	});
+	console.log(`userLocation inside function, outside callback: ${userLocation}`);
+}
+geolocate();
+console.log(`userLocation value after function call: ${userLocation}`);
+
+
+// testing promises - this didn't work
+/*async function getUserPosition() {
+	return new Promise((resolve, reject) =>
+		navigator.geolocation.getCurrentPosition(resolve, reject)
+	);
+}
+
+getUserPosition().then(position => {
+	userLocation = [position.coords.latitude, position.coords.longitude];
+});
+console.log(getUserPosition);*/
+
+
+
+/* ----- try to convert vehicles to geoJSON; not currently working ----- */
+
+/*async function fetchSpinGeoJSON() {
 	let vehicles = {'type': 'FeatureCollection', 'features': []};
 	await fetch('https://gbfs.spin.pm/api/gbfs/v1/washington_dc/free_bike_status')
 	.then(resp => resp.json())
@@ -28,13 +67,11 @@ async function fetchSpinGeoJSON() {
 
 vehicles = fetchSpinGeoJSON();
 
-L.geoJSON(vehicles).addTo(map);
+L.geoJSON(vehicles).addTo(map);*/
 
-
-/* fetch vehicles and map as individual markers */
+/* ----- fetch vehicles and map as individual markers ----- */
 /* VERY SLOW */
 
-/*
 fetch('https://gbfs.spin.pm/api/gbfs/v1/washington_dc/free_bike_status')
 	.then(resp => resp.json())
 	.then(data => {
@@ -49,4 +86,3 @@ fetch('https://gbfs.spin.pm/api/gbfs/v1/washington_dc/free_bike_status')
 			)
 		})
 	});
-*/
