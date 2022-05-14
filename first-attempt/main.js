@@ -46,9 +46,10 @@ console.log(getUserPosition);*/
 
 
 
-/* ----- try to convert vehicles to geoJSON; not currently working ----- */
+/* ----- fetch vehicles as geoJSON ----- */
+/* not really faster than the other method, it turns out */
 
-/*async function fetchSpinGeoJSON() {
+async function fetchSpinGeoJSON() {
 	let vehicles = {'type': 'FeatureCollection', 'features': []};
 	await fetch('https://gbfs.spin.pm/api/gbfs/v1/washington_dc/free_bike_status')
 	.then(resp => resp.json())
@@ -61,17 +62,18 @@ console.log(getUserPosition);*/
 			let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': coordinates}, 'properties': properties}
 			vehicles.features.push(feature);
 		}
-	});
+	})
 	console.log(vehicles);
+	L.geoJSON(vehicles).addTo(map);
 }
 
-vehicles = fetchSpinGeoJSON();
+fetchSpinGeoJSON();
 
-L.geoJSON(vehicles).addTo(map);*/
 
 /* ----- fetch vehicles and map as individual markers ----- */
 /* VERY SLOW */
 
+/*
 fetch('https://gbfs.spin.pm/api/gbfs/v1/washington_dc/free_bike_status')
 	.then(resp => resp.json())
 	.then(data => {
@@ -86,3 +88,4 @@ fetch('https://gbfs.spin.pm/api/gbfs/v1/washington_dc/free_bike_status')
 			)
 		})
 	});
+*/
